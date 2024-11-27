@@ -1,0 +1,36 @@
+services:
+  library-management-postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: library_management_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - library-management-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - library-management-network
+
+  library-management-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8090:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://library-management-postgres:5432/library_management_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - library-management-postgres
+    networks:
+      - library-management-network
+
+volumes:
+  library-management-postgres-data:
+networks:
+  library-management-network:
+    driver: bridge
